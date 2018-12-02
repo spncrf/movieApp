@@ -6,6 +6,7 @@
   <body>
     <h1><center>New User Registration</center></h1>
     <% if (error == true) { %> <p>Passwords were not the same</p> <% } %>
+    <% if (user_error == true) { %> <p>Invalid User Creation</p> <% } %>
     <form method = "post">
       <label>Username: </label><input type="text" name="username" value="" maxlength="100" required/>
       <br><br>
@@ -15,7 +16,10 @@
       <br><br>
       <label>Confirm Password: </label><input type="password" name="password2" value="" maxlength="100" required/>
       <br><br>
-      <center><button type = "submit" formaction= "/create">Create</button></center>
+      <label>Manager Password: </label><input type="password" name="manager_password" value="" maxlength="100" />
+      <br><br>
+      <center><button type = "submit" formaction= "/create-user">Create User Profile</button></center>
+      <center><button type = "submit" formaction= "/create-manager">Create Manager Profile</button></center>
     </form>
   </body>
 </html>

@@ -6,10 +6,17 @@
   <body>
     <h1><center>Now Playing</center></h1>
     <div>
-      <p>My Profile</p>
+      <a href = "me"><p>My Profile (<%- username %>)</p></a>
     </div>
-    <h3>
-      THIS IS WHERE THE MOVIE TABLE WILL BE STORED
-    </h3>
+      <table>
+      <% for (var i = 0; i < movies.length; i = i + 2){ %>
+        <tr>
+          <td><a href = "/movie/<%= movies[i]['title'] %>" id = "<%= movies[i]['title'] %>"><p><%= movies[i]['title'] %></p></a></td></a><td><% if (i < movies.length) { %><a href = "/movie/<%= movies[i+1]['title'] %>" id = "<%= movies[i+1]['title'] %>"><%= movies[i+1]['title'] %></a> <% } %></td>
+        </tr>
+      <% }; %>
+      <table>
+        <form method = "get">
+        <button type = "submit" formaction = "/">Log Out</button></right>
+      </form>
   </body>
 </html>

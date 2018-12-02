@@ -1,11 +1,8 @@
 {
-  "name": "uamovie",
+  "name": "uamovieapp",
   "version": "1.0.0",
   "description": "CS301 project",
-  "main": "demo_db_connection.js",
-  "scripts": {
-    "test": "d"
-  },
-  "author": "",
+  "main": "server.js",
+  "author": "Spencer Fuhriman",
   "license": "ISC"
 }

@@ -4,17 +4,17 @@
     <title>UA Movie - Me</title>
   </head>
   <body>
-    <h1><center>Me</center></h1>
+    <h1><center><%= username %></center></h1>
     <div>
       <p>My Profile</p>
     </div>
     <center>
-      <h4>My Order History</h4>
-      <h4>My Payment Information</h4>
-      <h4>My Preferred Theatre</h4>
+      <a href = "order-history"><h4>My Order History</h4></a>
+      <a href = "payment-info"><h4>My Payment Information</h4></a>
+      <a href = "preferred-theatre"><h4>My Preferred Theatre</h4></a>
     </center>
-    <form>
-      <center><button type = "submit" formaction = "/home">Back</button></center>
+    <form method = "post">
+      <center><button type = "submit" formaction = "/back-home">Back</button></center>
     </form>
   </body>
 </html>

@@ -6,16 +6,59 @@
   <body>
     <center><h1>Buy Ticket</h1></center>
     <p>
-      LIST CHOSEN TIME HERE
+      Tickets for: <%= title %>, <%= showtime%> at <%= theatre %>
     </p>
-    <form method = "post">
-      <p>
-        choose your tickets here
-      </p>
-      <p>
-        enter your credit card info HERE
-      </p>
-      <right><button type = "submit" formaction = "/confirm">Submit</button></right>
+      <form method = "post">
+      <h3>How many tickets?</h3>
+      <div>
+      Adult: <input type = "text" name = "adult" size = "10"><br><br>
+      Senior: <input type = "text" name = "senior" size = "10"><br><br>
+      Child: <input type = "text" name = "child" size = "10"><br><br>
+      </div>
+      <h3>Payment Information</h3>
+      <div>
+      Use a Saved Card <select name = "savedcard"><% for (var i = 0; i < cards.length; i++) { %> <option value = "<%= cards[i]['Card'] %>"><%= cards[i]['Card'] %> </option><% } %></select>
+      </div>
+      <div>
+      <p>Use a New Card</p>
+      <table>
+    <tr>
+      <td>
+        Name on Card
+      </td>
+      <td>
+        <input type = "text" name = "cardname" size = "100"><br><br>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Card Number
+      </td>
+      <td>
+        <input type = "text" name = "cardnumber" size = "16"><br><br>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        CVV
+      </td>
+      <td>
+        <input type = "text" name = "cardcvv" size = "3"><br><br>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        Expiration Date
+      </td>
+      <td>
+        <input type = "text" name = "cardexp" size = "7"><br><br>
+      </td>
+    </tr>
+      </div>
+    </table>
+      <input type="checkbox" name="paysave" value="paysave">Save This Card
+      &nbsp;&nbsp;&nbsp;
+      <button type = "submit" formaction = "/confirm">Buy Tickets</button>
     </form>
   </body>
 </html>

@@ -6,13 +6,24 @@
   <body>
     <center><h1>Choose Theatre</h1></center>
     <p>
+      <% if (theatres.length != 0) { %>
       <form method = "post">
-        Saved Theatre <button type = "submit" formaction = "/time">Choose</button>
+        Saved Theatre
+      <select name = "theatrechoice">
+        <% for (var i = 0; i < theatres.length; i++){ %>
+          <option value = "<%= theatres[i] %>"><%= theatres[i] %></option>
+        <% } %>
+      </select>
+      <button type = "submit" formaction = "/time">Choose</button>
       </form>
+      <% } %>
+      <% if (theatres.length == 0) { %>
+        There are no saved theatres
+      <% } %>
     </p>
     <p>
       <form method = "post">
-        City/State/Theatre <input type="text" name="username" value="location" maxlength="100" /> <button type = "submit" formaction = "/search">Search</button>
+        City/State/Theatre <input type="text" name="search" maxlength="100" /> <button type = "submit" formaction = "/search">Search</button>
       </form>
     </p>
   </body>

@@ -5,11 +5,32 @@
   </head>
   <body>
     <center><h1>Select Time</h1></center>
-    <p>
-      LIST AVAILABLE HOURS HERE
-    </p>
+      <% if (rows.length == 0) { %>
+        <p>
+        None for this time
+      </p>
+      <% } %>
+      <% if (rows.length > 0) { %>
+        <table>
+          <% for (var i = 0; i < rows.length; i++){ %>
+            <tr>
+              <td>
+                <input type = "radio" name = "rows[i]['Showtime']" >
+              </td>
+              <td>
+              <%= rows[i]['Showtime'] %>
+              </td>
+            </tr>
+          <% } %>
+        </table>
+      <% } %>
     <form method = "post">
-      <button type = "submit" formaction = "/buy">Buy</button>
+      <% if (rows.length == 0) { %>
+        <button type = "submit" formaction = "/back-showtimes">Back</button>
+      <% } %>
+      <% if (rows.length > 0) { %>
+        <button type = "submit" formaction = "/buy">Buy</button>
+      <% } %>
     </form>
   </body>
 </html>

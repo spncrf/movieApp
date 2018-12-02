@@ -5,15 +5,18 @@
   </head>
   <body>
     <h1><center>Login</center></h1>
+    <% if (success == true) { %> <p>Successfully Created User</p> <% } %>
     <form method = "post">
       <label>Username: </label><input type="text" name="username" value="" maxlength="100" />
       <br><br>
-      <label>Password: </label><input type="password" name="password" value="" maxlength="100" />
+      <label>Password: </label><input type="text" name="password" value="" maxlength="100" />
       <br><br>
-      <button type = "submit" formaction= "/now-playing">Login</button>
+      <button type = "submit" formaction = "/manager-home">Login as Manager</button>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <button type = "submit" formaction= "/user-home">Login as User</button>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <button type = "submit" formaction= "/register">Register</button>
     </form>
-    <% if (error == true) { %> <p>A user with that username doesn't exist</p> <% } %>
+    <% if (error == true) { %> <p>Username or Password does not exist for that account</p> <% } %>
   </body>
 </html>

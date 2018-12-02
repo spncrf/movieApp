@@ -5,13 +5,34 @@
   </head>
   <body>
     <center><h1>Results</h1></center>
-    <p>
-    SEARCH RESULTS GO HERE
-    </p>
     <form method = "post">
-      <input type="checkbox" name="save" value="save">Save Theatre
-      <br>
-      <button type = "submit" formaction = "/time">Next</button>
+    <p>
+    <% if (result.length == 0) { %>
+      No Results
+    <% } %>
+    <% if (result.length != 0) { %>
+    <table>
+      <% for (var i = 0; i < result.length; i++) { %>
+        <tr>
+          <td>
+            <input type = "radio" name = "location" value = "<%= result[i]['Name'] %>" >
+          </td>
+          <td>
+            <%= result[i]['Name'] %><br>
+            <%= result[i]['Street'] %>, <%= result[i]['City'] %>, <%= result[i]['State'] %> <%= result[i]['Zip'] %>
+          </td>
+        </tr>
+      <% } %>
+    </table>
+    <% } %>
+    </p>
+      <% if (result.length != 0) { %>
+      <input type="checkbox" name="save" value="save">Save This Theatre
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <button type = "submit" formaction = "/choose-time">Next</button>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <% } %>
+      <button type = "submit" formaction = "/back-theatre">Back</button>
     </form>
   </body>
 </html>

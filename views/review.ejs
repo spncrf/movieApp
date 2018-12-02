@@ -1,16 +1,34 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>UA Movie - <%= title Reviews></title>
+    <title>UA Movie - <%= title %> Reviews></title>
   </head>
   <body>
-    <h1> <%= title></h1><span> <%= avgRating></span>
-    <form>
+    <h1> <%= title %>      (Average Rating: <%= rating[0].avgrating %>)</h1>
+    <% if (error == true) { %> <p>You must see the movie before you can review it!</p> <% } %>
+    <form method = "post">
       <button type = "submit" formaction = "/give-review">Give Review</button>
     </form>
-    <p>
-      REVIEWS GO HERE
-    </p>
-    <button type = "submit" action = "/movie">Back</button>
+    <% if (reviews) { %>
+      <table>
+        <% for (var i = 0; i < reviews.length; i++) { %>
+          <tr>
+            <td>
+              <p>
+                <b>Title:</b> <%= reviews[i].ReviewTitle %><br>
+                <b>Rating:</b> <%= reviews[i].rating %><br>
+                <b>Comment:</b> <%= reviews[i].comment %><br>
+              </p>
+            </td>
+          </tr>
+        <% } %>
+      </table>
+    <% } %>
+    <% if (!(reviews)) { %>
+      <p>Reviews for this movie - feel free to submit one!</p>
+    <% } %>
+    <form method = "post">
+      <button type = "submit" formaction = "/back-movies">Go Back</button>
+    </form>
   </body>
 </html>

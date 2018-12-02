@@ -1,23 +1,30 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>UA Movie - <%= title></title>
+    <title>UA Movie - <%= data[0].title %></title>
   </head>
   <body>
-    <h1><%=title></h1>
+    <h1><%=data[0].title %></h1>
   <table>
     <tr>
       <td>
-        info about the movie
+        <p>Release date: <%= releasedate %><br>
+           Runtime: <%= data[0].length %> minutes<br>
+           Genre: <%= data[0].genre %><br>
+           Rating: <%= data[0].avgreview %>
+        </p>
       </td>
       <td>
         <form>
-          <button type = "submit" formaction = "/overview">Overview</button>
-          <button type = "submit" formaction = "/review">Movie Review</button>
-          <button type = "submit" formaction = "/tickets">Buy Ticket</button>
+          <button type = "submit" formaction = "/overview">Overview</button><br>
+          <button type = "submit" formaction = "/review">Movie Review</button><br>
+          <button type = "submit" formaction = "/choose-theatre">Buy Ticket</button><br>
         </form>
       </td>
     </tr>
   </table>
+  <form method = "post">
+      <button type = "submit" formaction = "/back-home">Go Back</button>
+  </form>
   </body>
 </html>
