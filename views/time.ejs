@@ -5,6 +5,8 @@
   </head>
   <body>
     <center><h1>Select Time</h1></center>
+    <center><h2>Times for <%= name %></h2></center>
+    <form method = "post">
       <% if (rows.length == 0) { %>
         <p>
         None for this time
@@ -15,7 +17,7 @@
           <% for (var i = 0; i < rows.length; i++){ %>
             <tr>
               <td>
-                <input type = "radio" name = "rows[i]['Showtime']" >
+                <input type = "radio" name = "showtime" value = "<%= rows[i]['Showtime'] %>" >
               </td>
               <td>
               <%= rows[i]['Showtime'] %>
@@ -24,7 +26,6 @@
           <% } %>
         </table>
       <% } %>
-    <form method = "post">
       <% if (rows.length == 0) { %>
         <button type = "submit" formaction = "/back-showtimes">Back</button>
       <% } %>

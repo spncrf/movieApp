@@ -16,10 +16,12 @@ var showtime;
 var theatre;
 var search;
 var theatre_id;
+var cards;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(express.static('styles'));
 
 /*
 * Routing
@@ -399,7 +401,8 @@ app.get('/generate-search', function(req, res){
   con.query(searchTheatre_sql, [title, search, search, search], function(error, result){
     if (error) { throw error; }
     res.render('search', {
-      result: result
+      result: result,
+      search: search
     });
   });
 })
@@ -410,62 +413,108 @@ app.post('/search', function(req, res){
   res.redirect('/generate-search');
 })
 
-//creates the valid times
+//creates the valid times from search results
 app.post('/choose-time', function(req, res){
   var savedtheatre = req.body.save;
   theatre = req.body.location;
     con.query(getTheatreID_sql, [theatre], function(error, result){
      theatre_id = result[0].TheatreID;
-      console.log(id + " is the id");
+      console.log(theatre_id + " is the id");
       if (savedtheatre == 'save'){
-        con.query(insertSavedTheatre_sql, [id, username], function(error, result){});
+        con.query(insertSavedTheatre_sql, [theatre_id, username], function(error, result){});
         console.log("Saved the theatre");
       }
-        con.query(selectShowtime_sql, [id, title], function(error, result){
+        con.query(selectShowtime_sql, [theatre_id, title], function(error, result){
           res.render('time', {
-            rows: result
+            rows: result,
+            name: theatre
           });
         });
     });
   })
 
+//create the valid times from saved theatre
+app.post('/choose-saved', function(req, res){
+  theatre = req.body.theatrechoice;
+  con.query(getTheatreID_sql, [theatre], function(error, result){
+   theatre_id = result[0].TheatreID;
+    console.log(theatre_id + " is the id");
+      con.query(selectShowtime_sql, [theatre_id, title], function(error, result){
+        res.render('time', {
+          rows: result,
+          name: theatre
+        });
+      });
+  });
+})
+
 //create purchase page
 app.post('/buy', function(req, res){
-  showtime = req.body.name;
+  showtime = req.body.showtime;
+  console.log(showtime);
   con.query(savedCards_sql, [username], function(error, result){
     if (error) { throw error; }
     console.log(result);
+    cards = result;
     res.render('buy', {
       title: title,
       theatre: theatre,
       showtime: showtime,
-      cards: result
+      cards: cards
     });
   });
 })
 
+//creates the confirmation page and inserts order
 app.post('/confirm', function(req, res){
-  var numSeniorTix = req.body.adult;
-  var numAdultTix = req.body.senior;
-  var numChildTix = req.body.senior;
-  var totalTix = numSeniorTix + numAdultTix + numChildTx;
-  var cardName = req.body.cardname;
-  var cardNo = req.body.cardname;
-  var cardcvv = req.body.cardname;
-  var cardexp = req.body.cardexp;
-  var savedcard = req.body.paysave;
-  if (savedcard == 'paysave'){
-    con.query(insertSavedCard_sql, [cardNo, cardcvv, cardName, cardexp, username], function(error, result){
-      if (error) { throw error; }
-    });
-  }
-  con.query(newOrder_sql, [numSeniorTix, numChildTix, numAdultTix, totalTix, cardNo, username, title, theatre_id], function(error, result){
+  var numSeniorTix = Number(req.body.adult);
+  var numAdultTix = Number(req.body.senior);
+  var numChildTix = Number(req.body.senior);
+  var totalTix = numSeniorTix + numAdultTix + numChildTix;
+  if (req.body.savedcard != '-'){
+  cardNo = req.body.savedcard;
+  con.query(newOrder_sql, [numSeniorTix, numChildTix, numAdultTix, showtime, totalTix, cardNo, username, title, theatre_id], function(error, result){
     if (error) { throw error; }
+    console.log("New Order added");
     res.render('confirm', {
-
+        OrderID: result[1].OrderID
     });
   });
-})
+  }
+  else {
+    var cardName = req.body.cardname;
+    var cardNo = req.body.cardname;
+    var cardcvv = req.body.cardname;
+    var cardexp = req.body.cardexp;
+    if (!(cardName) || !(cardNo) || !(cardcvv) || !(cardexp)){
+      res.render ('buy', {
+        title: title,
+        theatre: theatre,
+        showtime: showtime,
+        cards: cards
+      });
+    }
+    else {
+      var savedcard = req.body.paysave;
+      if (savedcard == 'paysave'){
+        con.query(insertSavedCard_sql, [cardNo, cardcvv, cardName, cardexp, username], function(error, result){
+          if (error) { throw error; }
+          console.log("Adding a new card");
+        });
+      }
+      console.log(totalTix + cardName + cardNo + cardcvv + cardexp + savedcard);
+      con.query(newOrder_sql, [numSeniorTix, numChildTix, numAdultTix, showtime, totalTix, cardNo, username, title, theatre_id], function(error, result){
+        if (error) { throw error; }
+        console.log("New Order added");
+        console.log("ANYTING AT ALL");
+        console.log(result);
+        res.render('confirm', {
+            OrderID: result[1].OrderID
+        });
+      });
+    }
+  }
+});
 
 
 /*
@@ -578,7 +627,7 @@ SELECT Showtime FROM Showtime
 WHERE TheatreID = ? and Title = ?;`
 
 var savedCards_sql = `
-SELECT right(CardNo, 4) AS Card
+SELECT CardNo AS Card
 FROM PAYMENT_INFO
 WHERE Username = ? and saved = 'Y';`
 
@@ -587,6 +636,8 @@ insert into PAYMENT_INFO (CardNo, CVV, Name, Expiration, Saved, Username) values
 (?, ?, ?, ?, 'Y', ?);`
 
 var newOrder_sql = `
-insert into ORDERS(OrderID, Date, numSeniorTix, numChildTix, numAdultTix, Time, totalTix, Status, CardNo, Username, Title, TheatreID) values
-(NULL, CURDATE(), ?, ?, ?, CURRENT_TIME(), ?, 'Unused', ?, ?, ?, ?);
+insert into ORDERS(OrderID, OrderDate, numSeniorTix, numChildTix, numAdultTix, SHOWTIME, totalTix, Status, CardNo, Username, Title, TheatreID) values
+(NULL, CURDATE(), ?, ?, ?, CAST(? AS DATETIME), ?, 'Unused', ?, ?, ?, ?);
+SELECT OrderID FROM
+ORDERS ORDER BY OrderID DESC LIMIT 1;
 `

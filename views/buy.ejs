@@ -5,9 +5,7 @@
   </head>
   <body>
     <center><h1>Buy Ticket</h1></center>
-    <p>
-      Tickets for: <%= title %>, <%= showtime%> at <%= theatre %>
-    </p>
+      <center><h2>Tickets for: <%= title %>, <%= showtime %> at <%= theatre %></h2></center>
       <form method = "post">
       <h3>How many tickets?</h3>
       <div>
@@ -17,10 +15,12 @@
       </div>
       <h3>Payment Information</h3>
       <div>
-      Use a Saved Card <select name = "savedcard"><% for (var i = 0; i < cards.length; i++) { %> <option value = "<%= cards[i]['Card'] %>"><%= cards[i]['Card'] %> </option><% } %></select>
+      Use a Saved Card <select name = "savedcard"><option value = "-">-</option><% for (var i = 0; i < cards.length; i++) { %> <option value = "<%= cards[i]['Card'] %>"><%= cards[i]['Card'] %> </option><% } %></select>
       </div>
       <div>
-      <p>Use a New Card</p>
+      <h3>Use a New Card</h3>
+    </div>
+    <div>
       <table>
     <tr>
       <td>
