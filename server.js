@@ -16,12 +16,15 @@ var showtime;
 var theatre;
 var search;
 var theatre_id;
+var orderid;
 var cards;
+var canceled;
+var id;
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
-app.use(express.static('styles'));
+app.use(express.static("views"));
 
 /*
 * Routing
@@ -75,28 +78,33 @@ app.post('/back-home', function(req, res){
   res.redirect('/home');
 })
 
-//creates the manager page
+//grabs credentials for manager
 app.post('/manager-home', function(req, res){
   console.log("User Submitted!\n");
   username = req.body.username;
   password = req.body.password;
   console.log(req.body.manager);
-    con.query(login_sql, ["Manager", username, password], function(error, result){
-      if(error){ throw error; }
-      if (result.length != 0){
-        console.log("Logging in as manager\n");
-        res.render('test', {
-          username: username
-        });
-      }
-      else {
-        res.render('login', {
-          error: true,
-          success: false
-        });
-    }
-    });
+  res.redirect('/manager');
 });
+
+//creates the home manager page
+app.get('/manager', function(req, res){
+  con.query(login_sql, ["Manager", username, password], function(error, result){
+    if(error){ throw error; }
+    if (result.length != 0){
+      console.log("Logging in as manager\n");
+      res.render('manager-home', {
+        username: username
+      });
+    }
+    else {
+      res.render('login', {
+        error: true,
+        success: false
+      });
+  }
+  });
+})
 
 //creates registration page
 app.post('/register', function(req, res){
@@ -203,61 +211,118 @@ app.get('/me', function(req, res){
 //creates the order history
 app.get('/order-history', function(req, res){
   console.log("Viewing Order History");
-  con.query(orderHistory_sql, function(error, result ){
+  con.query(orderHistory_sql, [username], function(error, result){
     if (error) { throw error; }
     res.render('orders', {
+      username: username,
+      orders: result,
+      canceled: canceled
     });
+    canceled = 0;
   })
+})
+
+//goes back to the order history
+app.post('/back-orders', function(req, res){
+  console.log("Going back to the Orders");
+  res.redirect('/order-history');
+});
+
+//cancels a given order
+app.post('/order-cancel', function (req, res){
+  console.log("Canceling an order")
+  con.query(orderCancel_sql, [id], function(error, result){
+    if (error) { throw error; }
+    canceled = 1;
+    res.redirect('/order-history');
+  });
+})
+
+//view detail for given order
+app.post('/order-detail', function (req, res){
+  id = req.body.select;
+  console.log("id is " + id);
+  con.query(orderDetail_sql, [id], function(error, result){
+    if (error) {throw error; }
+    console.log(result);
+    res.render('order-detail', {
+      id: id,
+      username: username,
+      order: result
+    });
+  });
+})
+
+
+//searchers for a given order history
+app.post('/order-history-search', function(req, res){
+  orderid = req.body.search;
+  console.log(orderid);
+  console.log("Viewing a Searched ID");
+  con.query(orderHistorySearch_sql, [orderid], function(error, result){
+    if (error) {throw error; }
+    console.log(result);
+    res.render('orders', {
+      username: username,
+      orders: result,
+      canceled: canceled
+    });
+  });
 })
 
 //looks at the preferred theatre
 app.get('/preferred-theatre', function(req, res){
   console.log("Viewing Preferred Theatre");
-  con.query(viewtheatres_sql, [], function(error, result){
+  con.query(viewtheatres_sql, [username], function(error, result){
     if (error) { throw error; }
     res.render('preferred-theatre',{
-      //
+      theatres: result,
+      username: username
     });
   });
 })
 
-//go back
-app.post('/back-me-theatre', function(req, res){
-  res.redirect('/me');
-})
 
 //deletes selected theatre
 app.post('/delete-theatre', function(req, res){
-  deleted = req.body.theatrechoice;
-  con.query(deletetheatre_sql, [deleted, username], function(error, result){
+  var theatreid = req.body.select;
+  con.query(deletetheatre_sql, [username, theatreid], function(error, result){
     if (error) { throw error; }
-    res.redirect('/preferred-theatre');
+    con.query(viewtheatres_sql, [username], function(error, result){
+      if (error) { throw error; }
+      res.render('preferred-theatre',{
+        theatres: result,
+        username: username
+      });
+    });
   });
 })
 
 //looks at the payment Information
 app.get('/payment-info', function(req, res){
   console.log("Viewing Payment Information");
-  con.query(viewpayment_sql, [], function(error, result){
+  con.query(viewpayment_sql, [username], function(error, result){
     if (error) { throw error; }
     res.render('payment-info', {
-      //
+      payment: result,
+      username: username
     });
   })
 })
 
-//update preferred payment and go back
-app.post('/back-me-payment', function(req, res){
-  preffered_payment = req.body.paymentchoice;
-  res.redirect('/me');
-})
-
-//deletes selected payment
-app.post('/delete-theatre', function(req, res){
-  deleted = req.body.paymentchoice;
-  con.query(deletepayment_sql, [deleted, username], function(error, result){
+//deletes selected cardno from database
+app.post('/delete-payment', function(req, res){
+  var CardNo = req.body.select;
+  console.log("Deleting " + CardNo);
+  con.query(deletepayment_sql, [CardNo, username], function (error, result){
     if (error) { throw error; }
-    res.redirect('/preferred-theatre');
+    con.query(viewpayment_sql, [username], function(error, result){
+      if (error) { throw error; }
+      res.render('payment-info', {
+        payment: result,
+        username: username
+      });
+    });
   });
 })
 
@@ -396,6 +461,10 @@ app.get('/choose-theatre', function(req, res){
     });
 })
 
+app.post('/back-me', function(req, res){
+  console.log('Going back to me');
+  res.redirect('/me');
+})
 //generate the search results
 app.get('/generate-search', function(req, res){
   con.query(searchTheatre_sql, [title, search, search, search], function(error, result){
@@ -451,6 +520,9 @@ app.post('/choose-saved', function(req, res){
 //create purchase page
 app.post('/buy', function(req, res){
   showtime = req.body.showtime;
+  var s = new Date(showtime);
+  var convertedDate = "2018-"+ (s.getMonth() + 1).toLocaleString("en-us", {minimumIntegerDigits: 2, useGrouping: false}) + "-" +  s.getDate().toLocaleString("en-us", {minimumIntegerDigits: 2, useGrouping: false}) + " " + s.getHours().toLocaleString("en-us", {minimumIntegerDigits: 2, useGrouping: false}) + ":" + s.getMinutes().toLocaleString("en-us", {minimumIntegerDigits: 2, useGrouping: false}) + ":00";
+  showtime = convertedDate;
   console.log(showtime);
   con.query(savedCards_sql, [username], function(error, result){
     if (error) { throw error; }
@@ -471,20 +543,22 @@ app.post('/confirm', function(req, res){
   var numAdultTix = Number(req.body.senior);
   var numChildTix = Number(req.body.senior);
   var totalTix = numSeniorTix + numAdultTix + numChildTix;
+  console.log("Saved card here is " + req.body.savedcard);
   if (req.body.savedcard != '-'){
   cardNo = req.body.savedcard;
   con.query(newOrder_sql, [numSeniorTix, numChildTix, numAdultTix, showtime, totalTix, cardNo, username, title, theatre_id], function(error, result){
     if (error) { throw error; }
-    console.log("New Order added");
+    console.log("New Order added here");
+    console.log(result.insertId);
     res.render('confirm', {
-        OrderID: result[1].OrderID
+        OrderID: result.insertId
     });
   });
   }
   else {
     var cardName = req.body.cardname;
-    var cardNo = req.body.cardname;
-    var cardcvv = req.body.cardname;
+    var cardNo = req.body.cardnumber;
+    var cardcvv = req.body.cardcvv;
     var cardexp = req.body.cardexp;
     if (!(cardName) || !(cardNo) || !(cardcvv) || !(cardexp)){
       res.render ('buy', {
@@ -496,6 +570,7 @@ app.post('/confirm', function(req, res){
     }
     else {
       var savedcard = req.body.paysave;
+      console.log("Saved card is " + savedcard);
       if (savedcard == 'paysave'){
         con.query(insertSavedCard_sql, [cardNo, cardcvv, cardName, cardexp, username], function(error, result){
           if (error) { throw error; }
@@ -505,17 +580,53 @@ app.post('/confirm', function(req, res){
       console.log(totalTix + cardName + cardNo + cardcvv + cardexp + savedcard);
       con.query(newOrder_sql, [numSeniorTix, numChildTix, numAdultTix, showtime, totalTix, cardNo, username, title, theatre_id], function(error, result){
         if (error) { throw error; }
-        console.log("New Order added");
-        console.log("ANYTING AT ALL");
-        console.log(result);
+        console.log("New Order added there");
+        console.log(result.insertId);
         res.render('confirm', {
-            OrderID: result[1].OrderID
+            OrderID: result.insertId
         });
       });
     }
   }
 });
 
+//creates revenue report
+app.get('/revenue-report', function(req, res) {
+  con.query(revenueReport_sql, function(error, result){
+    if (error) { throw error; }
+    console.log("Generating revenue report");
+    console.log(result);
+    res.render('revenue-report', {
+      username: username,
+      data: result
+    });
+  });
+})
+
+//generates the movie report
+app.get('/movies-report', function(req, res){
+var date = new Date();
+var month = date.getMonth();
+var beginningMonth = month - 2;
+var year = date.getFullYear();
+var first = month - 2;
+var second = month - 1;
+var third = month;
+console.log(first + " " + second + " " + third + " " + year);
+  con.query(popularmovieReport_sql, [first, year, second, year, third, year], function(error, result){
+    if (error) { throw error; }
+    console.log("Generating movie report");
+    console.log(result);
+    res.render('movies-report', {
+      username: username,
+      data: result
+    });
+  });
+})
+
+app.post('/back-manager', function(req, res){
+  res.redirect('/manager');
+})
 
 /*
 * MySQL stuff
@@ -556,7 +667,14 @@ var nowPlaying_sql = `
 SELECT DISTINCT title FROM PlaysAt WHERE playing = 'Y';`
 
 var orderHistory_sql = `
-`
+SELECT
+o.orderID,
+o.title,
+o.status,
+round((o.numAdultTix*temp.adultPrice)+(o.numChildTix*temp.childPrice)+(o.numSeniorTix*temp.seniorPrice),2) as TotalCost
+from ORDERS o, (select adultPrice, seniorPrice, childPrice, cancellationFee from SystemInfo) temp
+where Username = ?`
+
 var movieInfo_sql = `
 SELECT movie.title, movie.length, movie.genre, movie.releasedate, avg(review.rating) AS avgreview
 FROM movie JOIN review ON movie.title = review.title
@@ -588,15 +706,31 @@ VALUES (NULL, ?, ?, ?, ?, ?);
 `
 
 var deletetheatre_sql = `
+delete from Prefers
+where username = ? and TheatreID = ?;
 `
 
-var viewtheatres_sql = `
+var viewtheatres_sql = `select t.Name,
+t.TheatreID,
+t.Street,
+t.City,
+t.State,
+t.ZIP
+from Theatre t, Prefers p
+where t.TheatreID = p.TheatreID and Username = ?;
 `
 
 var deletepayment_sql = `
+delete from Payment_Info
+where CardNo = ? and Username = ?;
 `
 
 var viewpayment_sql = `
+select CardNo,
+Name,
+Expiration
+from Payment_Info
+where Username = ? AND Saved = 'Y';
 `
 
 var preferredTheatres_sql = `
@@ -606,6 +740,7 @@ INNER JOIN Prefers
 ON Theatre.TheatreID=Prefers.TheatreID
 WHERE Username = ?;
 `
+
 var searchTheatre_sql = `
 SELECT DISTINCT Theatre.Name, Theatre.State, Theatre.City, Theatre.Street, Theatre.Zip
 FROM Theatre INNER JOIN Showtime
@@ -624,7 +759,7 @@ INSERT INTO PREFERS (TheatreID, Username) values
 
 var selectShowtime_sql = `
 SELECT Showtime FROM Showtime
-WHERE TheatreID = ? and Title = ?;`
+WHERE TheatreID = ? and Title = ? AND Showtime > now();`
 
 var savedCards_sql = `
 SELECT CardNo AS Card
@@ -636,8 +771,56 @@ insert into PAYMENT_INFO (CardNo, CVV, Name, Expiration, Saved, Username) values
 (?, ?, ?, ?, 'Y', ?);`
 
 var newOrder_sql = `
-insert into ORDERS(OrderID, OrderDate, numSeniorTix, numChildTix, numAdultTix, SHOWTIME, totalTix, Status, CardNo, Username, Title, TheatreID) values
-(NULL, CURDATE(), ?, ?, ?, CAST(? AS DATETIME), ?, 'Unused', ?, ?, ?, ?);
-SELECT OrderID FROM
-ORDERS ORDER BY OrderID DESC LIMIT 1;
+insert into ORDERS(OrderID, OrderDate, numSeniorTix, numChildTix, numAdultTix, Showtime, totalTix, Status, CardNo, Username, Title, TheatreID) values
+(NULL, CURDATE(), ?, ?, ?, ?, ?, 'Unused', ?, ?, ?, ?);
+`
+var orderHistorySearch_sql = `
+select
+o.orderID,
+o.title,
+o.status,
+(o.numAdultTix*temp.adultPrice)+(o.numChildTix*temp.childPrice)+(o.numSeniorTix*temp.seniorPrice) as TotalCost
+from ORDERS o, (select adultPrice, seniorPrice, childPrice, cancellationFee from SystemInfo) temp
+where OrderID = ?;`
+
+var orderDetail_sql = `
+select distinct
+o.orderid,
+o.Title,
+m.Rating,
+m.Length,
+s.Showtime,
+t.Name,
+t.City,
+t.ZIP,
+t.Street,
+t.State,
+o.Status,
+o.numAdultTix,
+o.numChildTix,
+o.numSeniorTix,
+o.numAdultTix*si.adultPrice as "TotalAdult",
+o.numChildTix*si.childPrice as "TotalChild",
+o.numSeniorTix*si.seniorPrice as "TotalSenior"
+from orders o, movie m, showtime s, theatre t, systeminfo si
+where o.Title = m.Title and s.Showtime = o.showtime and t.TheatreID = o.TheatreID and OrderID = ?;`
+
+var orderCancel_sql = `
+update ORDERS
+set Status = 'Cancelled'
+where OrderID = ?;`
+
+var revenueReport_sql = `
+select MONTHNAME(Orderdate) AS Month,
+round(sum((o.numAdultTix*temp.adultPrice)+(o.numChildTix*temp.childPrice)+(o.numSeniorTix*temp.seniorPrice)), 0) as Revenue
+from ORDERS o, systeminfo temp
+where OrderDate BETWEEN '2018-08-31' and '2018-12-30'
+group by MONTHNAME(OrderDate);`
+
+var popularmovieReport_sql =
+`(select MONTHNAME(Orderdate) as Month,title,count(*)as Orders from ORDERS o where MONTH(OrderDate) = ? and YEAR(OrderDate) = ? group by title order by Month, orders desc limit 3)
+union
+(select MONTHNAME(Orderdate)as Month, title, count(*) as Orders from ORDERS o where MONTH(OrderDate) = ? and YEAR(OrderDate) = ? group by title order by Month, orders desc limit 3)
+union
+(select MONTHNAME(Orderdate) as Month, title, count(*) as Orders from ORDERS o where MONTH(OrderDate) = ? and YEAR(OrderDate) = ? group by title order by Month, orders desc limit 3);
 `

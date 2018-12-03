@@ -2,20 +2,60 @@
   <head>
     <meta charset="utf-8" />
     <title>UA Movie - <%= username %> Orders</title>
+    <link rel = "stylesheet" href = "/styles.css">
   </head>
   <body>
-    <h1><center>Now Playing</center></h1>
-    <div>
-      <a href = "me"><p>My Profile (<%= username %>)</p></a>
-    </div>
-    <h3>
+    <form method = "post">
+    <h1><center>Order History</center></h1>
+    <% if (canceled == 1) { %> <p>Order canceled; money successfully rebated with a $5 cancellation fee </p> <% } %>
+    <% if (orders.length != 0) { %>
+      Order ID <input type = "text" name = "search" maxlength = "50" /> <button type = "submit" formaction = "/order-history-search">Search</button><br>
       <table>
-      <% for (var i = 0; i < orders.length; i = ++){ %>
         <tr>
-          <td><%= orders[i]['title'] %></td><td>//</td><td>//<td>
+          <th>
+            Select
+          </th>
+          <th>
+            OrderID
+          </th>
+          <th>
+            Title
+          </th>
+          <th>
+            Status
+          </th>
+          <th>
+            Total Cost
+          </th>
+        </tr>
+      <% for (var i = 0; i < orders.length; i++){ %>
+        <tr>
+          <td>
+            <input type = "radio" name = "select" value = "<%= orders[i]['orderID'] %>">
+          </td>
+          <td>
+            <%= orders[i]['orderID'] %>
+          </td>
+          <td>
+            <%= orders[i]['title'] %>
+          </td>
+          <td>
+            <%= orders[i]['status'] %>
+          </td>
+          <td>
+            $<%= orders[i]['TotalCost'] %>
+          </td>
         </tr>
       <% }; %>
-      <table>
-    </h3>
+    </table>
+      <% } %>
+      <% if (orders.length == 0) { %>
+        <p>No Orders in History</p>
+      <% } %>
+      <% if (orders.length != 0){ %>
+        <button type = "submit" formaction = "/order-detail">View Detail</button>
+    <%  } %>
+      <button type = "submit" formaction = "/back-me">Back</button>
+    </form>
   </body>
 </html>

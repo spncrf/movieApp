@@ -4,6 +4,9 @@ button {
     padding: 10px 15px;
     text-align: center;
     border: none;
+    margin-top: 10px;
+    margin-left: 10px;
+    text-align: center;
 }
 button:hover {
     background-color: green;
@@ -19,6 +22,10 @@ table {
     margin-left: auto;
     margin-right: auto;
 }
+td {
+    padding: 15px;
+    text-align: center;
+}
 html {
     text-align: center;
 }
@@ -30,5 +37,4 @@ body {
 }
 a {
     text-decoration: none;
-
 }

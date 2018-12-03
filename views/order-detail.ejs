@@ -1,0 +1,30 @@
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>UA Movie - Detail for <%= id %></title>
+  <link rel = "stylesheet" href = "/styles.css">
+</head>
+<body>
+  <h1>Order Detail</h1>
+  <form method = "post">
+  <h2><%= order[0]['Title'] %></h2>
+  <p><%= order[0]['Rating'] %> -- <%= order[0]['Length'] %> Minutes</p>
+  <p>Showtime: <%= order[0]['Showtime'] %> </p>
+  <h3><%= order[0]['Name'] %></h3>
+  <p><%= order[0]['Street'] %><br>
+     <%= order[0]['City'] %>, <%= order[0]['State'] %> <%= order[0]['Zip'] %>
+  </p>
+  <p>
+  <% if (order[0]['numAdultTix'] != 0) { %>
+    <%= order[0]['numAdultTix'] %> adult ticket(s) : $<%= order[0]['TotalAdult'] %><br>
+  <% } %>
+  <% if (order[0]['numChildTix'] != 0) { %>
+    <%= order[0]['numChildTix'] %> child ticket(s) : $<%= order[0]['TotalChild']%><br>
+  <% } %>
+  <% if (order[0]['numSeniorTix'] != 0) { %>
+    <%= order[0]['numSeniorTix'] %> senior ticket(s) : $<%= order[0]['TotalSenior'] %>
+  <% } %>
+</p>
+  <button type = "submit" formaction = "/order-cancel">Cancel This Order</button>
+  <button type = "submit" formaction = "/back-orders">Back</button>
+</body>

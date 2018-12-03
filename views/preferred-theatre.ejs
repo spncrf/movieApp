@@ -1,14 +1,42 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>UA Movie - Preferred Theatre</title>
+    <title>UA Movie - <%= username %> Theatres</title>
+    <link rel = "stylesheet" href = "/styles.css">
   </head>
   <body>
-    <h1><center>My Preffered Theatres</center></h1>
     <form method = "post">
-      PREFERRED THEATRE LIST
-      <center><button type = "submit" formaction = "/back-me">Back</button></center>
-      <center><button type = "submit" formaction = "/delete-theatre">Delete</button></center>
-    </form>
-  </body>
+    <h1><center>My Preferred Theatres</center></h1>
+<% if (theatres.length != 0) { %>
+  <table>
+    <tr>
+      <th>
+        Select
+      </th>
+      <th>
+        Location
+      </th>
+    </tr>
+  <% for (var i = 0; i < theatres.length; i++){ %>
+    <tr>
+      <td>
+        <input type = "radio" name = "select" value = "<%= theatres[i]['TheatreID'] %>">
+      </td>
+      <td>
+        <%= theatres[i]['Name'] %> <br>
+        <%= theatres[i]['Street'] %>, <%= theatres[i]['City'] %>, <%= theatres[i]['State'] %> <%= theatres[i]['ZIP'] %>
+      </td>
+    </tr>
+  <% }; %>
+</table>
+  <% } %>
+  <% if (theatres.length == 0) { %>
+    <p>No Preffered Theatres</p>
+  <% } %>
+  <% if (theatres.length != 0){ %>
+    <button type = "submit" formaction = "/delete-theatre">Delete</button>
+<%  } %>
+  <button type = "submit" formaction = "/back-me">Back</button>
+</form>
+</body>
 </html>
