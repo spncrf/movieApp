@@ -433,7 +433,7 @@ app.post('/add-review', function(req, res){
   var reviewtitle = req.body.title;
   var rating = req.body.rating;
   console.log("Review Added");
-  con.query(addreview_sql, [title, comment, rating, username, reviewtitle], function(error, result) {
+  con.query(addreview_sql, [title, reviewtitle, comment, rating, username], function(error, result) {
     if (error) { throw error; }
     console.log(comment + reviewtitle + rating + "Review added!");
     res.redirect('/movie');
@@ -676,7 +676,7 @@ from ORDERS o, (select adultPrice, seniorPrice, childPrice, cancellationFee from
 where Username = ?`
 
 var movieInfo_sql = `
-SELECT movie.title, movie.length, movie.genre, movie.releasedate, avg(review.rating) AS avgreview
+SELECT movie.title, movie.length, movie.genre, movie.releasedate, avg(review.rating) AS avgreview, movie.Rating 
 FROM movie JOIN review ON movie.title = review.title
 WHERE movie.title = ?;
 `
@@ -721,7 +721,8 @@ where t.TheatreID = p.TheatreID and Username = ?;
 `
 
 var deletepayment_sql = `
-delete from Payment_Info
+UPDATE Payment_Info
+Set Saved = 'N'
 where CardNo = ? and Username = ?;
 `
 
